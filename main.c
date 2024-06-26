@@ -64,10 +64,10 @@ volatile double xdat, ydat;
 unsigned int const iterCout = 1000000;
 
 // Task priorities
-UBaseType_t const adcTaskHighPriority_        = 1;
-UBaseType_t const adcTaskLowPriority_         = 1;
-UBaseType_t const buttonServiceTaskPriority_  = 1;
-UBaseType_t const dataProcessingTaskPriority_ = 2;
+UBaseType_t const adcTaskHighPriority_        = 3;
+UBaseType_t const adcTaskLowPriority_         = 2;
+UBaseType_t const buttonServiceTaskPriority_  = 2;
+UBaseType_t const dataProcessingTaskPriority_ = 1;
 // The idle task has the lowest priority with numerical value of 0
 
 void main(void) {
@@ -244,10 +244,10 @@ static void dataProcessingTask_(void * taskParameters) {
             TickType_t executionBeginTime = xTaskGetTickCount();
 
             // Some fake calculations -------------------------------This leads to long delay when J1 is pressed!
-//            unsigned int i;
-//            for (i = 0; i < iterCout; ++i) {
-//                ydat = cos(xdat);
-//            }
+            unsigned int i;
+            for (i = 0; i < iterCout; ++i) {
+                ydat = cos(xdat);
+            }
 
             // Compute time delay
             TickType_t executionEndTime = xTaskGetTickCount();
