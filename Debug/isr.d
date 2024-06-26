@@ -23,6 +23,8 @@ isr.obj: D:/CCSWorkspace/OSLAB4/rtos/FreeRTOS/source/include/mpu_wrappers.h
 isr.obj: D:/CCSWorkspace/OSLAB4/rtos/FreeRTOS/source/include/task.h
 isr.obj: D:/CCSWorkspace/OSLAB4/rtos/FreeRTOS/source/include/list.h
 isr.obj: D:/CCSWorkspace/OSLAB4/rtos/FreeRTOS/source/include/queue.h
+isr.obj: C:/ti/TivaWare_C_Series-2.2.0.295/driverlib/gpio.h
+isr.obj: C:/ti/ccs1250/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h
 isr.obj: ../isr.h
 
 ../isr.c:
@@ -70,6 +72,10 @@ D:/CCSWorkspace/OSLAB4/rtos/FreeRTOS/source/include/task.h:
 D:/CCSWorkspace/OSLAB4/rtos/FreeRTOS/source/include/list.h:
 
 D:/CCSWorkspace/OSLAB4/rtos/FreeRTOS/source/include/queue.h:
+
+C:/ti/TivaWare_C_Series-2.2.0.295/driverlib/gpio.h:
+
+C:/ti/ccs1250/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h:
 
 ../isr.h:
 

@@ -122,7 +122,7 @@ void main(void) {
 
     // Perform ISR initialization
     unsigned int modifiedHalfFlashDurationIsr = 60;
-    configureISR(NULL, eventDrivenTask, modifiedHalfFlashDurationIsr);
+    configureISR(halfFlashDurationQueue, eventDrivenTask, modifiedHalfFlashDurationIsr);
 
     // Perform hardware initialization. It is deferred up to this point because it activates interrupts.
     hardwareSetup_();
@@ -243,11 +243,11 @@ static void dataProcessingTask_(void * taskParameters) {
             // Measure time delay
             TickType_t executionBeginTime = xTaskGetTickCount();
 
-            // Some fake calculations
-            unsigned int i;
-            for (i = 0; i < iterCout; ++i) {
-                ydat = cos(xdat);
-            }
+            // Some fake calculations -------------------------------This leads to long delay when J1 is pressed!
+//            unsigned int i;
+//            for (i = 0; i < iterCout; ++i) {
+//                ydat = cos(xdat);
+//            }
 
             // Compute time delay
             TickType_t executionEndTime = xTaskGetTickCount();
