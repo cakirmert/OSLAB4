@@ -47,6 +47,8 @@ struct buttonServiceTaskParams_ {
 struct adcTaskParams_ adcTP0_, adcTP1_;         // instances of the structure
 struct buttonServiceTaskParams_ buttonServiceTP_;    // instance of the structure
 
+SemaphoreHandle_t preemptSemaphore;             // Semaphore for preemption
+
 // Task functions for the pulse generator functionality
 static void adcTask_(void * taskParameters);
 static void buttonServiceTask_(void * taskParameters);
@@ -83,6 +85,13 @@ void main(void) {
     // Creating mutex, it is a special case of a (binary) semaphore
     SemaphoreHandle_t moduleMutex = xSemaphoreCreateMutex();
     if (moduleMutex == NULL) {
+        // Handle error
+        defaultApplicationErrorHandler_();
+    }
+
+    // Create the semaphore for preemption signaling
+    preemptSemaphore = xSemaphoreCreateBinary();
+    if (preemptSemaphore == NULL) {
         // Handle error
         defaultApplicationErrorHandler_();
     }
@@ -156,8 +165,16 @@ static void adcTask_(void * taskParameters) {
     // Variable used by vTaskDelayUntil()
     TickType_t lastExecutionTime = xTaskGetTickCount();
 
+    // Variable to store the next execution time of the high priority task
+    static TickType_t nextHighPriorityExecutionTime = 0;
+
     // Fundamental, infinite task loop
     while(1) {
+        // If this is the high priority task, set the next execution time
+        if (0 == strcmp("adcTaskHigh", TaskName)) {
+            nextHighPriorityExecutionTime = lastExecutionTime + taskExecutionPeriod;
+        }
+
         // Request the mutex. The mutex controls the access to the GPIO peripherals.
         // A block time is specified, so the calling task will be placed in the Blocked state to wait for the mutex to be available.
         // Infinite block time is used (portMAX_DELAY), so it is not necessary to check the value returned as
@@ -169,6 +186,14 @@ static void adcTask_(void * taskParameters) {
 
         // Only low priority task can have its flash rate changed
         if (0 == strcmp("adcTaskLow", TaskName) && halfFlashDurationQueue) {
+            // Check if there is enough time to complete before the high priority task needs to start
+            if (xTaskGetTickCount() + (flashCount_ * halfFlashDuration * 2) > nextHighPriorityExecutionTime) {
+                // Not enough time to complete, release the mutex and delay
+                xSemaphoreGive(mutex);
+                vTaskDelay(nextHighPriorityExecutionTime - xTaskGetTickCount());
+                continue;
+            }
+
             // Obtain a message from the queue halfFlashDurationQueue_. Do not block if the queue is empty, block time is 0.
             __attribute__((unused))
             UBaseType_t itemCount;  // Count of elements in the queue, for debugging
@@ -243,7 +268,7 @@ static void dataProcessingTask_(void * taskParameters) {
             // Measure time delay
             TickType_t executionBeginTime = xTaskGetTickCount();
 
-            // Some fake calculations -------------------------------This leads to long delay when J1 is pressed!
+            // Some fake calculations
             unsigned int i;
             for (i = 0; i < iterCout; ++i) {
                 ydat = cos(xdat);
